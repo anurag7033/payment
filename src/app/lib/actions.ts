@@ -4,29 +4,43 @@ import { revalidatePath } from 'next/cache';
 import { addCustomer, updateCustomer, deleteCustomer, CustomerRecord, getCustomerById } from './db';
 import { generateWhatsAppMessage, GenerateWhatsAppMessageInput } from '@/ai/flows/generate-whatsapp-message';
 
-export async function createCustomerAction(formData: FormData) {
-  const name = formData.get('name') as string;
-  const phoneNumber = formData.get('phoneNumber') as string;
-  const deviceModel = formData.get('deviceModel') as string;
-  const issueDescription = formData.get('issueDescription') as string;
-  const estimatedCharges = Number(formData.get('estimatedCharges'));
-  const repairedParts = formData.get('repairedParts') as string;
-  const repairStatus = formData.get('repairStatus') as any;
-  const paymentStatus = formData.get('paymentStatus') as any;
+export async function createCustomerAction(prevState: any, formData: FormData) {
+  try {
+    const name = formData.get('name') as string;
+    const phoneNumber = formData.get('phoneNumber') as string;
+    const deviceModel = formData.get('deviceModel') as string;
+    const issueDescription = formData.get('issueDescription') as string;
+    const estimatedCharges = Number(formData.get('estimatedCharges'));
+    const repairedParts = formData.get('repairedParts') as string;
+    const repairStatus = formData.get('repairStatus') as any;
+    const paymentStatus = formData.get('paymentStatus') as any;
 
-  await addCustomer({
-    name,
-    phoneNumber,
-    deviceModel,
-    issueDescription,
-    estimatedCharges,
-    repairedParts,
-    repairStatus,
-    paymentStatus,
-  });
+    const newCustomer = await addCustomer({
+      name,
+      phoneNumber,
+      deviceModel,
+      issueDescription,
+      estimatedCharges,
+      repairedParts,
+      repairStatus,
+      paymentStatus,
+    });
 
-  revalidatePath('/admin/customers');
-  revalidatePath('/admin');
+    revalidatePath('/admin/customers');
+    revalidatePath('/admin');
+    
+    return { 
+      success: true, 
+      customer: newCustomer,
+      message: 'Intake recorded successfully!' 
+    };
+  } catch (error) {
+    console.error(error);
+    return { 
+      success: false, 
+      message: 'Failed to record intake. Please try again.' 
+    };
+  }
 }
 
 export async function updateCustomerAction(id: string, data: Partial<CustomerRecord>) {
