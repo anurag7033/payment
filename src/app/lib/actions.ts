@@ -10,17 +10,23 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
     const phoneNumber = formData.get('phoneNumber') as string;
     const deviceModel = formData.get('deviceModel') as string;
     const issueDescription = formData.get('issueDescription') as string;
+    const trackingId = formData.get('trackingId') as string;
     const estimatedCharges = Number(formData.get('estimatedCharges'));
     const repairedParts = formData.get('repairedParts') as string;
     const repairStatus = formData.get('repairStatus') as any;
     const paymentStatus = formData.get('paymentStatus') as any;
     const paymentLink = formData.get('paymentLink') as string;
 
+    if (!trackingId) {
+      return { success: false, message: 'Tracking ID is required.' };
+    }
+
     const newCustomer = await addCustomer({
       name,
       phoneNumber,
       deviceModel,
       issueDescription,
+      trackingId,
       estimatedCharges,
       repairedParts,
       repairStatus,

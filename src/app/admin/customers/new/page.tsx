@@ -24,7 +24,8 @@ import {
   ArrowRight,
   Plus,
   Link as LinkIcon,
-  Wrench
+  Wrench,
+  Hash
 } from 'lucide-react';
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
@@ -56,12 +57,12 @@ export default function NewCustomerPage() {
             </div>
             <CardTitle className="text-3xl font-headline font-bold">Intake Registered!</CardTitle>
             <CardDescription className="text-lg">
-              Customer record created and tracking ID generated.
+              Customer record created and tracking ID assigned.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-8 space-y-8">
             <div className="bg-muted/30 p-6 rounded-2xl border flex flex-col items-center gap-4">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Unique Tracking ID</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Tracking ID</p>
               <div className="flex items-center gap-3">
                 <code className="text-4xl font-mono font-black text-primary tracking-tighter">
                   {state.customer.trackingId}
@@ -127,7 +128,7 @@ export default function NewCustomerPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-headline font-bold">New Repair Intake</h1>
-          <p className="text-sm text-muted-foreground">A unique tracking ID will be generated upon registration.</p>
+          <p className="text-sm text-muted-foreground">Enter customer details and assign a tracking ID.</p>
         </div>
       </div>
 
@@ -195,6 +196,22 @@ export default function NewCustomerPage() {
 
           <div className="space-y-6">
             <Card className="border-none shadow-sm">
+              <CardHeader className="bg-blue-50 pb-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Hash className="w-5 h-5 text-blue-600" /> Tracking Information
+                </CardTitle>
+                <CardDescription>Assign a unique tracking ID for this repair.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="trackingId">Tracking ID / Job Sheet Number</Label>
+                  <Input id="trackingId" name="trackingId" placeholder="e.g. JOB-1021-A" required />
+                  <p className="text-[10px] text-muted-foreground italic">This ID will be used by the customer to track status.</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-sm">
               <CardHeader className="bg-muted pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Tag className="w-5 h-5 text-muted-foreground" /> Status
@@ -260,7 +277,7 @@ export default function NewCustomerPage() {
                   className="w-full h-14 text-lg shadow-lg mt-4 font-bold rounded-2xl"
                   disabled={isPending}
                 >
-                  {isPending ? 'Registering Intake...' : 'Generate Tracking & Register'}
+                  {isPending ? 'Registering Intake...' : 'Register Intake'}
                 </Button>
                 {state?.success === false && (
                   <p className="text-sm text-destructive font-medium text-center mt-2">{state.message}</p>

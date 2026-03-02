@@ -59,13 +59,11 @@ export const getCustomerById = async (id: string) => {
   );
 };
 
-export const addCustomer = async (data: Omit<CustomerRecord, 'id' | 'trackingId' | 'createdAt'>) => {
+export const addCustomer = async (data: Omit<CustomerRecord, 'id' | 'createdAt'>) => {
   const newId = Math.random().toString(36).substr(2, 9);
-  const newTrackingId = `TRK-${Math.floor(1000 + Math.random() * 9000)}-${newId.substr(0, 1).toUpperCase()}`;
   const newCustomer: CustomerRecord = {
     ...data,
     id: newId,
-    trackingId: newTrackingId,
     createdAt: new Date().toISOString(),
   };
   customers.push(newCustomer);
