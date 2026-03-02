@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit2, Loader2, Save, Wallet, Zap, Link as LinkIcon } from 'lucide-react';
+import { Edit2, Loader2, Save, Wallet, Zap, Link as LinkIcon, CreditCard } from 'lucide-react';
 import { updateCustomerAction, generatePaymentLinkAction } from '@/app/lib/actions';
 import { CustomerRecord } from '@/app/lib/db';
 import { toast } from '@/hooks/use-toast';
@@ -46,7 +46,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
     if (remaining <= 0) {
       toast({
         title: "No Balance",
-        description: "Cannot generate a link for zero or negative balance.",
+        description: "Cannot generate a link for zero balance.",
       });
       return;
     }
@@ -56,14 +56,14 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
       const link = await generatePaymentLinkAction(customer.name, remaining, customer.trackingId);
       setFormData({ ...formData, paymentLink: link });
       toast({
-        title: "Link Generated",
-        description: "Automated payment link updated for balance.",
+        title: "Razorpay Link Generated",
+        description: "Updated automated payment link for balance.",
       });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to generate link.",
+        description: "Failed to generate Razorpay link.",
       });
     } finally {
       setIsGeneratingLink(false);
@@ -106,7 +106,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
         <DialogHeader>
           <DialogTitle>Update Repair Progress</DialogTitle>
           <DialogDescription>
-            Change the status of the repair for {customer.name}&apos;s {customer.deviceModel}.
+            Change the status for {customer.name}&apos;s {customer.deviceModel}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -155,9 +155,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="paidAmount" className="flex items-center gap-1">
-                <Wallet className="w-3 h-3" /> Paid (₹)
-              </Label>
+              <Label htmlFor="paidAmount">Paid (₹)</Label>
               <Input 
                 id="paidAmount" 
                 type="number" 
@@ -167,25 +165,15 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="repairedParts">Parts Replaced (List)</Label>
-            <Textarea 
-              id="repairedParts" 
-              value={formData.repairedParts}
-              onChange={(e) => setFormData({ ...formData, repairedParts: e.target.value })}
-              placeholder="Enter parts line by line..."
-              className="min-h-[100px]"
-            />
-          </div>
-          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="paymentLink" className="flex items-center gap-1">
-                <LinkIcon className="w-3 h-3" /> Payment Link
+                <CreditCard className="w-3 h-3" /> Razorpay Link
               </Label>
               <Button 
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                className="h-6 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100 font-bold"
+                className="h-6 text-[10px] text-primary hover:bg-primary/10 font-bold"
                 onClick={handleGenerateLink}
                 disabled={isGeneratingLink}
               >
@@ -197,7 +185,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
               id="paymentLink" 
               value={formData.paymentLink}
               onChange={(e) => setFormData({ ...formData, paymentLink: e.target.value })}
-              placeholder="UPI or Payment URL"
+              placeholder="https://rzp.io/l/..."
             />
           </div>
         </div>

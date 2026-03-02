@@ -28,7 +28,8 @@ import {
   Hash,
   Wallet,
   Zap,
-  Loader2
+  Loader2,
+  CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
@@ -41,7 +42,6 @@ export default function NewCustomerPage() {
   const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const [autoPaymentLink, setAutoPaymentLink] = useState('');
   
-  // Form fields for link generation
   const [formData, setFormData] = useState({
     name: '',
     estimatedCharges: 0,
@@ -54,7 +54,7 @@ export default function NewCustomerPage() {
     if (remaining <= 0) {
       toast({
         title: "No Balance",
-        description: "Cannot generate a link for zero or negative balance.",
+        description: "Cannot generate a link for zero balance.",
       });
       return;
     }
@@ -64,14 +64,14 @@ export default function NewCustomerPage() {
       const link = await generatePaymentLinkAction(formData.name, remaining, formData.trackingId || 'NEW-JOB');
       setAutoPaymentLink(link);
       toast({
-        title: "Link Generated",
-        description: "Automated payment link created.",
+        title: "Razorpay Link Generated",
+        description: "Automated payment link created for balance.",
       });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to generate link.",
+        description: "Failed to generate Razorpay link.",
       });
     } finally {
       setIsGeneratingLink(false);
@@ -221,26 +221,6 @@ export default function NewCustomerPage() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="border-none shadow-sm">
-              <CardHeader className="bg-emerald-50 pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Wrench className="w-5 h-5 text-emerald-600" /> Parts Replaced (List)
-                </CardTitle>
-                <CardDescription>Enter each part on a new line.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="repairedParts">Parts List</Label>
-                  <Textarea 
-                    id="repairedParts" 
-                    name="repairedParts" 
-                    placeholder="e.g.&#10;OEM Display Screen&#10;Original Battery&#10;Charging Port" 
-                    className="min-h-[120px]"
-                  />
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           <div className="space-y-6">
@@ -262,7 +242,6 @@ export default function NewCustomerPage() {
                     value={formData.trackingId}
                     onChange={(e) => setFormData({...formData, trackingId: e.target.value})}
                   />
-                  <p className="text-[10px] text-muted-foreground italic">This ID will be used by the customer to track status.</p>
                 </div>
               </CardContent>
             </Card>
@@ -309,9 +288,9 @@ export default function NewCustomerPage() {
             <Card className="border-none shadow-sm">
               <CardHeader className="bg-amber-50 pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <IndianRupee className="w-5 h-5 text-amber-600" /> Quotation & Payment
+                  <IndianRupee className="w-5 h-5 text-amber-600" /> Payment & Razorpay
                 </CardTitle>
-                <CardDescription>Costing and payment collection details.</CardDescription>
+                <CardDescription>Costing and automated link generation.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -321,23 +300,17 @@ export default function NewCustomerPage() {
                       id="estimatedCharges" 
                       name="estimatedCharges" 
                       type="number" 
-                      step="0.01" 
-                      placeholder="0.00" 
                       required 
                       value={formData.estimatedCharges || ''}
                       onChange={(e) => setFormData({...formData, estimatedCharges: Number(e.target.value)})}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="paidAmount" className="flex items-center gap-1">
-                      <Wallet className="w-3 h-3" /> Paid Amount (₹)
-                    </Label>
+                    <Label htmlFor="paidAmount">Paid Amount (₹)</Label>
                     <Input 
                       id="paidAmount" 
                       name="paidAmount" 
                       type="number" 
-                      step="0.01" 
-                      placeholder="0.00" 
                       value={formData.paidAmount || ''}
                       onChange={(e) => setFormData({...formData, paidAmount: Number(e.target.value)})}
                     />
@@ -346,28 +319,27 @@ export default function NewCustomerPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="paymentLink" className="flex items-center gap-1">
-                      <LinkIcon className="w-3 h-3" /> Payment Link / UPI
+                      <CreditCard className="w-3 h-3" /> Razorpay Link
                     </Label>
                     <Button 
                       type="button" 
                       variant="ghost" 
                       size="sm" 
-                      className="h-6 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100 font-bold"
+                      className="h-6 text-[10px] text-primary hover:bg-primary/10 font-bold"
                       onClick={handleGenerateLink}
                       disabled={isGeneratingLink}
                     >
                       {isGeneratingLink ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Zap className="w-3 h-3 mr-1" />}
-                      Generate Magic Link
+                      Auto-Generate Link
                     </Button>
                   </div>
                   <Input 
                     id="paymentLink" 
                     name="paymentLink" 
-                    placeholder="https://razorpay.me/@fixflow or upi://..." 
+                    placeholder="https://rzp.io/l/..." 
                     value={autoPaymentLink}
                     onChange={(e) => setAutoPaymentLink(e.target.value)}
                   />
-                  <p className="text-[10px] text-muted-foreground">Automate payment by generating a professional UPI link.</p>
                 </div>
                 <Button 
                   type="submit" 
@@ -376,9 +348,6 @@ export default function NewCustomerPage() {
                 >
                   {isPending ? 'Registering Intake...' : 'Register Intake'}
                 </Button>
-                {state?.success === false && (
-                  <p className="text-sm text-destructive font-medium text-center mt-2">{state.message}</p>
-                )}
               </CardContent>
             </Card>
           </div>

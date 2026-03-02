@@ -12,13 +12,11 @@ import {
   ArrowRight,
   ShieldCheck,
   FileText,
-  Download,
   Loader2,
   Check,
   ChevronLeft,
-  IndianRupee,
-  Wallet,
-  Zap
+  Zap,
+  CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -61,7 +59,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
         <h1 className="text-4xl font-bold mb-4">No Record Found</h1>
         <p className="text-muted-foreground mb-8 text-center max-w-md">
           Sorry, we couldn't find a repair record for the tracking ID: <span className="font-bold text-foreground">"{decodeURIComponent(resolvedParams.id)}"</span>. 
-          Please double-check the ID and try again.
         </p>
         <Button asChild className="rounded-full">
           <Link href="/track">
@@ -135,11 +132,11 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight">Payment Summary</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Estimated Total</p>
+                    <p className="text-xs text-muted-foreground">Total Charges</p>
                     <p className="text-lg font-bold">₹{customer.estimatedCharges.toFixed(2)}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Paid Amount</p>
+                    <p className="text-xs text-muted-foreground">Amount Paid</p>
                     <p className="text-lg font-bold text-emerald-600">₹{customer.paidAmount?.toFixed(2) || '0.00'}</p>
                   </div>
                 </div>
@@ -153,17 +150,15 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
               {remainingAmount > 0 && (
                 <div className={cn(
-                  "p-6 rounded-2xl border flex flex-col items-center text-center space-y-4",
+                  "p-6 rounded-2xl border flex flex-col items-center text-center space-y-4 shadow-sm",
                   isCompleted ? "bg-amber-50 border-amber-100" : "bg-primary/5 border-primary/10"
                 )}>
                   <div className="space-y-1">
                     <p className={cn("font-bold text-lg", isCompleted ? "text-amber-600" : "text-primary")}>
-                      {isCompleted ? "Repair Completed!" : "Repair in Progress"}
+                      {isCompleted ? "Ready for Pickup!" : "Repair in Progress"}
                     </p>
                     <p className="text-sm opacity-80">
-                      {isCompleted 
-                        ? "Your device is ready for pickup. Please settle the remaining charges." 
-                        : "You can pay the remaining balance online using the link below."}
+                      Please settle the remaining charges online via Razorpay.
                     </p>
                   </div>
                   <div className="text-3xl font-bold text-foreground">
@@ -172,7 +167,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                   {customer.paymentLink ? (
                     <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90" asChild>
                       <Link href={customer.paymentLink} target="_blank">
-                        <Zap className="w-5 h-5 mr-2" /> Pay Online <ArrowRight className="w-5 h-5 ml-2" />
+                        <CreditCard className="w-5 h-5 mr-2" /> Pay with Razorpay <ArrowRight className="w-5 h-5 ml-2" />
                       </Link>
                     </Button>
                   ) : (
@@ -190,20 +185,18 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                     <p className="text-emerald-700 font-bold text-xl">Payment Successful</p>
                     <p className="text-sm text-emerald-800/60">Thank you for choosing FixFlow Pro.</p>
                   </div>
-                  <div className="flex flex-col w-full gap-2">
-                    <Button variant="outline" className="w-full rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-100" asChild>
-                      <Link href={`/api/invoice/${customer.id}`}>
-                        <FileText className="w-4 h-4 mr-2" /> View Invoice
-                      </Link>
-                    </Button>
-                  </div>
+                  <Button variant="outline" className="w-full rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-100" asChild>
+                    <Link href={`/api/invoice/${customer.id}`}>
+                      <FileText className="w-4 h-4 mr-2" /> Download Receipt
+                    </Link>
+                  </Button>
                 </div>
               )}
 
               <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-2xl">
                 <Clock className="w-5 h-5 text-muted-foreground" />
                 <p className="text-xs text-muted-foreground">
-                  Last updated: {new Date(customer.createdAt).toLocaleDateString()} at {new Date(customer.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  Updated: {new Date(customer.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
