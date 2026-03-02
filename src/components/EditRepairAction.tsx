@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit2, Loader2, Save, Wallet } from 'lucide-react';
-import { updateCustomerAction } from '@/app/lib/actions';
+import { Edit2, Loader2, Save, Wallet, Zap, Link as LinkIcon } from 'lucide-react';
+import { updateCustomerAction, generatePaymentLinkAction } from '@/app/lib/actions';
 import { CustomerRecord } from '@/app/lib/db';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -30,6 +30,7 @@ import { useRouter } from 'next/navigation';
 export default function EditRepairAction({ customer }: { customer: CustomerRecord }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     repairStatus: customer.repairStatus,
@@ -39,6 +40,35 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
     repairedParts: customer.repairedParts,
     paymentLink: customer.paymentLink || '',
   });
+
+  const handleGenerateLink = async () => {
+    const remaining = formData.estimatedCharges - formData.paidAmount;
+    if (remaining <= 0) {
+      toast({
+        title: "No Balance",
+        description: "Cannot generate a link for zero or negative balance.",
+      });
+      return;
+    }
+
+    setIsGeneratingLink(true);
+    try {
+      const link = await generatePaymentLinkAction(customer.name, remaining, customer.trackingId);
+      setFormData({ ...formData, paymentLink: link });
+      toast({
+        title: "Link Generated",
+        description: "Automated payment link updated for balance.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate link.",
+      });
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -147,7 +177,22 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="paymentLink">Payment Link (Optional)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="paymentLink" className="flex items-center gap-1">
+                <LinkIcon className="w-3 h-3" /> Payment Link
+              </Label>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100 font-bold"
+                onClick={handleGenerateLink}
+                disabled={isGeneratingLink}
+              >
+                {isGeneratingLink ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Zap className="w-3 h-3 mr-1" />}
+                Auto-Generate Link
+              </Button>
+            </div>
             <Input 
               id="paymentLink" 
               value={formData.paymentLink}

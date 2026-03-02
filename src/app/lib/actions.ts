@@ -97,3 +97,20 @@ export async function getWhatsAppPreview(id: string) {
   const { message } = await generateWhatsAppMessage(input);
   return { message, phone: customer.phoneNumber };
 }
+
+/**
+ * Generates a professional UPI payment link (compatible with Razorpay/GPay/PhonePe)
+ * In a real scenario, this would call the Razorpay API to create a unique link.
+ */
+export async function generatePaymentLinkAction(name: string, amount: number, trackingId: string) {
+  // Mock UPI ID for the shop - in a real app, this would come from shop settings
+  const shopUPI = "fixflow@upi"; 
+  const merchantName = "FixFlow Pro Repairs";
+  
+  // Construct standard UPI intent link
+  const encodedName = encodeURIComponent(merchantName);
+  const encodedNote = encodeURIComponent(`Repair Payment for ${trackingId}`);
+  const upiLink = `upi://pay?pa=${shopUPI}&pn=${encodedName}&am=${amount}&tn=${encodedNote}&cu=INR`;
+  
+  return upiLink;
+}

@@ -17,7 +17,8 @@ import {
   Check,
   ChevronLeft,
   IndianRupee,
-  Wallet
+  Wallet,
+  Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -150,19 +151,28 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                 )}
               </div>
 
-              {isCompleted && remainingAmount > 0 && (
-                <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex flex-col items-center text-center space-y-4">
+              {remainingAmount > 0 && (
+                <div className={cn(
+                  "p-6 rounded-2xl border flex flex-col items-center text-center space-y-4",
+                  isCompleted ? "bg-amber-50 border-amber-100" : "bg-primary/5 border-primary/10"
+                )}>
                   <div className="space-y-1">
-                    <p className="text-amber-600 font-bold text-lg">Repair Completed!</p>
-                    <p className="text-sm text-amber-800/80">Your device is ready for pickup. Please settle the remaining charges.</p>
+                    <p className={cn("font-bold text-lg", isCompleted ? "text-amber-600" : "text-primary")}>
+                      {isCompleted ? "Repair Completed!" : "Repair in Progress"}
+                    </p>
+                    <p className="text-sm opacity-80">
+                      {isCompleted 
+                        ? "Your device is ready for pickup. Please settle the remaining charges." 
+                        : "You can pay the remaining balance online using the link below."}
+                    </p>
                   </div>
                   <div className="text-3xl font-bold text-foreground">
                     ₹{remainingAmount.toFixed(2)}
                   </div>
                   {customer.paymentLink ? (
-                    <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20" asChild>
+                    <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90" asChild>
                       <Link href={customer.paymentLink} target="_blank">
-                        Pay Online <ArrowRight className="w-5 h-5 ml-2" />
+                        <Zap className="w-5 h-5 mr-2" /> Pay Online <ArrowRight className="w-5 h-5 ml-2" />
                       </Link>
                     </Button>
                   ) : (
@@ -190,14 +200,12 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                 </div>
               )}
 
-              {!isCompleted && (
-                <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-2xl">
-                  <Clock className="w-5 h-5 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    Last updated: {new Date(customer.createdAt).toLocaleDateString()} at {new Date(customer.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              )}
+              <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-2xl">
+                <Clock className="w-5 h-5 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">
+                  Last updated: {new Date(customer.createdAt).toLocaleDateString()} at {new Date(customer.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 'use client';
 
-import { createCustomerAction } from '@/app/lib/actions';
+import { createCustomerAction, generatePaymentLinkAction } from '@/app/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,9 @@ import {
   Link as LinkIcon,
   Wrench,
   Hash,
-  Wallet
+  Wallet,
+  Zap,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
@@ -36,6 +38,45 @@ import { toast } from '@/hooks/use-toast';
 export default function NewCustomerPage() {
   const [state, formAction, isPending] = useActionState(createCustomerAction, null);
   const [copied, setCopied] = useState(false);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+  const [autoPaymentLink, setAutoPaymentLink] = useState('');
+  
+  // Form fields for link generation
+  const [formData, setFormData] = useState({
+    name: '',
+    estimatedCharges: 0,
+    paidAmount: 0,
+    trackingId: ''
+  });
+
+  const handleGenerateLink = async () => {
+    const remaining = formData.estimatedCharges - formData.paidAmount;
+    if (remaining <= 0) {
+      toast({
+        title: "No Balance",
+        description: "Cannot generate a link for zero or negative balance.",
+      });
+      return;
+    }
+
+    setIsGeneratingLink(true);
+    try {
+      const link = await generatePaymentLinkAction(formData.name, remaining, formData.trackingId || 'NEW-JOB');
+      setAutoPaymentLink(link);
+      toast({
+        title: "Link Generated",
+        description: "Automated payment link created.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate link.",
+      });
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -146,7 +187,14 @@ export default function NewCustomerPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" placeholder="e.g. Michael Scott" required />
+                  <Input 
+                    id="name" 
+                    name="name" 
+                    placeholder="e.g. Michael Scott" 
+                    required 
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phoneNumber">Phone Number</Label>
@@ -206,7 +254,14 @@ export default function NewCustomerPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="trackingId">Tracking ID / Job Sheet Number</Label>
-                  <Input id="trackingId" name="trackingId" placeholder="e.g. JOB-1021-A" required />
+                  <Input 
+                    id="trackingId" 
+                    name="trackingId" 
+                    placeholder="e.g. JOB-1021-A" 
+                    required 
+                    value={formData.trackingId}
+                    onChange={(e) => setFormData({...formData, trackingId: e.target.value})}
+                  />
                   <p className="text-[10px] text-muted-foreground italic">This ID will be used by the customer to track status.</p>
                 </div>
               </CardContent>
@@ -262,25 +317,57 @@ export default function NewCustomerPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="estimatedCharges">Estimated Total (₹)</Label>
-                    <Input id="estimatedCharges" name="estimatedCharges" type="number" step="0.01" placeholder="0.00" required />
+                    <Input 
+                      id="estimatedCharges" 
+                      name="estimatedCharges" 
+                      type="number" 
+                      step="0.01" 
+                      placeholder="0.00" 
+                      required 
+                      value={formData.estimatedCharges || ''}
+                      onChange={(e) => setFormData({...formData, estimatedCharges: Number(e.target.value)})}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="paidAmount" className="flex items-center gap-1">
                       <Wallet className="w-3 h-3" /> Paid Amount (₹)
                     </Label>
-                    <Input id="paidAmount" name="paidAmount" type="number" step="0.01" placeholder="0.00" defaultValue="0" />
+                    <Input 
+                      id="paidAmount" 
+                      name="paidAmount" 
+                      type="number" 
+                      step="0.01" 
+                      placeholder="0.00" 
+                      value={formData.paidAmount || ''}
+                      onChange={(e) => setFormData({...formData, paidAmount: Number(e.target.value)})}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="paymentLink" className="flex items-center gap-1">
-                    <LinkIcon className="w-3 h-3" /> Payment Link / UPI (Optional)
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="paymentLink" className="flex items-center gap-1">
+                      <LinkIcon className="w-3 h-3" /> Payment Link / UPI
+                    </Label>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100 font-bold"
+                      onClick={handleGenerateLink}
+                      disabled={isGeneratingLink}
+                    >
+                      {isGeneratingLink ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Zap className="w-3 h-3 mr-1" />}
+                      Generate Magic Link
+                    </Button>
+                  </div>
                   <Input 
                     id="paymentLink" 
                     name="paymentLink" 
                     placeholder="https://razorpay.me/@fixflow or upi://..." 
+                    value={autoPaymentLink}
+                    onChange={(e) => setAutoPaymentLink(e.target.value)}
                   />
-                  <p className="text-[10px] text-muted-foreground">Provide a link for customers to pay once repair is complete.</p>
+                  <p className="text-[10px] text-muted-foreground">Automate payment by generating a professional UPI link.</p>
                 </div>
                 <Button 
                   type="submit" 
