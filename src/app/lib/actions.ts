@@ -34,7 +34,6 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
       paymentLink,
     });
 
-    // Revalidate multiple paths to ensure dashboard consistency
     revalidatePath('/', 'layout');
     
     return { 
@@ -54,8 +53,6 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
 export async function updateCustomerAction(id: string, data: Partial<CustomerRecord>) {
   try {
     await updateCustomer(id, data);
-    
-    // Force complete site revalidation for data sync
     revalidatePath('/', 'layout');
     
     const customer = await getCustomerById(id);
@@ -71,8 +68,11 @@ export async function updateCustomerAction(id: string, data: Partial<CustomerRec
 
 export async function deleteCustomerAction(id: string) {
   await deleteCustomer(id);
-  // Force complete site revalidation for data sync
   revalidatePath('/', 'layout');
+}
+
+export async function getCustomerAction(id: string) {
+  return await getCustomerById(id);
 }
 
 export async function getWhatsAppPreview(id: string) {

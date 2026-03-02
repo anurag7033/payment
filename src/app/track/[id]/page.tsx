@@ -1,6 +1,7 @@
 'use client';
 
-import { getCustomerById, CustomerRecord } from '@/app/lib/db';
+import { getCustomerAction } from '@/app/lib/actions';
+import { CustomerRecord } from '@/app/lib/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,8 @@ import {
   FileText,
   Download,
   Loader2,
-  Check
+  Check,
+  ChevronLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -27,7 +29,8 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchData() {
-      const data = await getCustomerById(resolvedParams.id);
+      // We must use a server action to fetch the data from the server's memory
+      const data = await getCustomerAction(resolvedParams.id);
       setCustomer(data || null);
       setLoading(false);
     }
@@ -45,10 +48,15 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
   if (!customer) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#ECF2F9]">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-muted-foreground mb-8 text-center">Sorry, we couldn't find a repair record for that tracking ID.</p>
+        <h1 className="text-4xl font-bold mb-4">No Record Found</h1>
+        <p className="text-muted-foreground mb-8 text-center max-w-md">
+          Sorry, we couldn't find a repair record for the tracking ID: <span className="font-bold text-foreground">"{resolvedParams.id}"</span>. 
+          Please double-check the ID and try again.
+        </p>
         <Button asChild className="rounded-full">
-          <Link href="/track">Back to Tracking</Link>
+          <Link href="/track">
+            <ChevronLeft className="w-4 h-4 mr-2" /> Back to Tracking
+          </Link>
         </Button>
       </div>
     );
@@ -64,7 +72,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
   return (
     <div className="min-h-screen bg-[#ECF2F9] py-12 px-4">
       <div className="max-w-xl mx-auto space-y-8">
-        {/* Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-2">
             <ShieldCheck className="w-3 h-3" /> Secure Status Page
@@ -73,7 +80,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
           <p className="text-muted-foreground">ID: <code className="bg-white px-2 py-0.5 rounded border">{customer.trackingId}</code></p>
         </div>
 
-        {/* Status Card */}
         <Card className="border-none shadow-xl overflow-hidden rounded-3xl">
           <CardHeader className={cn(
             "text-white pb-8",
