@@ -1,8 +1,9 @@
 import { getCustomerById } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const customer = await getCustomerById(params.id);
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const customer = await getCustomerById(id);
   
   if (!customer) {
     return new Response('Not Found', { status: 404 });

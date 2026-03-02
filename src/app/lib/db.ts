@@ -49,7 +49,15 @@ let customers: CustomerRecord[] = [
 
 export const getCustomers = async () => [...customers];
 
-export const getCustomerById = async (id: string) => customers.find(c => c.id === id || c.trackingId === id);
+export const getCustomerById = async (id: string) => {
+  if (!id) return null;
+  const normalizedId = id.toUpperCase();
+  return customers.find(c => 
+    c.id === id || 
+    c.trackingId === id || 
+    c.trackingId.toUpperCase() === normalizedId
+  );
+};
 
 export const addCustomer = async (data: Omit<CustomerRecord, 'id' | 'trackingId' | 'createdAt'>) => {
   const newId = Math.random().toString(36).substr(2, 9);

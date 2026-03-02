@@ -1,4 +1,6 @@
-import { getCustomerById } from '@/app/lib/db';
+'use client';
+
+import { getCustomerById, CustomerRecord } from '@/app/lib/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,21 +12,44 @@ import {
   ArrowRight,
   ShieldCheck,
   FileText,
-  Download
+  Download,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import RepairTimeline from '@/components/RepairTimeline';
+import { use, useEffect, useState } from 'react';
 
-export default async function TrackPage({ params }: { params: { id: string } }) {
-  const customer = await getCustomerById(params.id);
+export default function TrackPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const [customer, setCustomer] = useState<CustomerRecord | null | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      // Handle 'demo' by fetching the first customer if it's a demo link
+      const idToFetch = resolvedParams.id === 'demo' ? '1' : resolvedParams.id;
+      const data = await getCustomerById(idToFetch);
+      setCustomer(data || null);
+      setLoading(false);
+    }
+    fetchData();
+  }, [resolvedParams.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#ECF2F9]">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   if (!customer) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#ECF2F9]">
         <h1 className="text-4xl font-bold mb-4">404</h1>
         <p className="text-muted-foreground mb-8 text-center">Sorry, we couldn't find a repair record for that tracking ID.</p>
-        <Button asChild rounded-full>
+        <Button asChild className="rounded-full">
           <Link href="/">Back to Home</Link>
         </Button>
       </div>
