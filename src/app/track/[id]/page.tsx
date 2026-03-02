@@ -27,8 +27,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchData() {
-      const idToFetch = resolvedParams.id === 'demo' ? '1' : resolvedParams.id;
-      const data = await getCustomerById(idToFetch);
+      const data = await getCustomerById(resolvedParams.id);
       setCustomer(data || null);
       setLoading(false);
     }
@@ -49,7 +48,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
         <h1 className="text-4xl font-bold mb-4">404</h1>
         <p className="text-muted-foreground mb-8 text-center">Sorry, we couldn't find a repair record for that tracking ID.</p>
         <Button asChild className="rounded-full">
-          <Link href="/">Back to Home</Link>
+          <Link href="/track">Back to Tracking</Link>
         </Button>
       </div>
     );
@@ -58,7 +57,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
   const isCompleted = customer.repairStatus === 'Completed';
   const isPaid = customer.paymentStatus === 'Paid';
 
-  // Process parts as a list (split by newlines or commas)
   const partsList = customer.repairedParts 
     ? customer.repairedParts.split(/[\n,]/).map(p => p.trim()).filter(p => p !== "")
     : [];

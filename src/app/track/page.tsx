@@ -23,7 +23,7 @@ export default function TrackLandingPage() {
     <div className="min-h-screen bg-[#ECF2F9] flex flex-col items-center justify-center p-4">
       <div className="flex items-center gap-2 mb-8">
         <div className="bg-primary p-2 rounded-lg">
-          <Smartphone className="text-primary-foreground w-6 h-6" />
+          <role Smartphone className="text-primary-foreground w-6 h-6" />
         </div>
         <span className="text-2xl font-headline font-bold tracking-tight">FixFlow Pro</span>
       </div>
@@ -49,13 +49,6 @@ export default function TrackLandingPage() {
               Track Status <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </form>
-          
-          <div className="mt-8 pt-6 border-t text-center">
-            <p className="text-sm text-muted-foreground mb-4">Don't have a tracking ID? Check with the shop or try our demo.</p>
-            <Button asChild variant="ghost" className="rounded-full">
-              <Link href="/track/demo">View Demo Tracking</Link>
-            </Button>
-          </div>
         </CardContent>
       </Card>
       

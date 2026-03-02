@@ -13,12 +13,12 @@ import {
   Plus, 
   Search, 
   Filter, 
-  ExternalLink,
-  MoreHorizontal
+  ExternalLink
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import WhatsAppAction from '@/components/WhatsAppAction';
+import DeleteCustomerAction from '@/components/DeleteCustomerAction';
 import { cn } from '@/lib/utils';
 
 export default async function CustomersPage() {
@@ -109,7 +109,7 @@ export default async function CustomersPage() {
                         <ExternalLink className="w-4 h-4" />
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon"><MoreHorizontal className="w-4 h-4" /></Button>
+                    <DeleteCustomerAction customerId={customer.id} />
                   </div>
                 </TableCell>
               </TableRow>
