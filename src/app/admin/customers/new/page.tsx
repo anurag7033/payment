@@ -17,13 +17,14 @@ import {
   ChevronLeft, 
   Smartphone, 
   User, 
-  DollarSign, 
+  IndianRupee, 
   Tag, 
   CheckCircle2, 
   Copy, 
-  MessageSquare,
   ArrowRight,
-  Plus
+  Plus,
+  Link as LinkIcon,
+  Wrench
 } from 'lucide-react';
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
@@ -147,7 +148,7 @@ export default function NewCustomerPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phoneNumber">Phone Number</Label>
-                  <Input id="phoneNumber" name="phoneNumber" placeholder="e.g. +1 234 567 890" required />
+                  <Input id="phoneNumber" name="phoneNumber" placeholder="e.g. +91 98765 43210" required />
                 </div>
               </CardContent>
             </Card>
@@ -170,15 +171,35 @@ export default function NewCustomerPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="border-none shadow-sm">
+              <CardHeader className="bg-emerald-50 pb-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Wrench className="w-5 h-5 text-emerald-600" /> Parts Replaced (List)
+                </CardTitle>
+                <CardDescription>Enter each part on a new line.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="repairedParts">Parts List</Label>
+                  <Textarea 
+                    id="repairedParts" 
+                    name="repairedParts" 
+                    placeholder="e.g.&#10;OEM Display Screen&#10;Original Battery&#10;Charging Port" 
+                    className="min-h-[120px]"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="space-y-6">
             <Card className="border-none shadow-sm">
-              <CardHeader className="bg-emerald-50 pb-4">
+              <CardHeader className="bg-muted pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-emerald-600" /> Status & Parts
+                  <Tag className="w-5 h-5 text-muted-foreground" /> Status
                 </CardTitle>
-                <CardDescription>Track repair progress and replaced components.</CardDescription>
+                <CardDescription>Track repair progress and payment status.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -208,24 +229,31 @@ export default function NewCustomerPage() {
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="repairedParts">Repaired/Replaced Parts</Label>
-                  <Input id="repairedParts" name="repairedParts" placeholder="e.g. OEM Screen, Battery" />
-                </div>
               </CardContent>
             </Card>
 
             <Card className="border-none shadow-sm">
               <CardHeader className="bg-amber-50 pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-amber-600" /> Quotation
+                  <IndianRupee className="w-5 h-5 text-amber-600" /> Quotation & Payment
                 </CardTitle>
-                <CardDescription>Costing and financial details.</CardDescription>
+                <CardDescription>Costing and payment collection details.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="estimatedCharges">Estimated Charges ($)</Label>
+                  <Label htmlFor="estimatedCharges">Estimated Charges (₹)</Label>
                   <Input id="estimatedCharges" name="estimatedCharges" type="number" step="0.01" placeholder="0.00" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paymentLink" className="flex items-center gap-1">
+                    <LinkIcon className="w-3 h-3" /> Payment Link / UPI (Optional)
+                  </Label>
+                  <Input 
+                    id="paymentLink" 
+                    name="paymentLink" 
+                    placeholder="https://razorpay.me/@fixflow or upi://..." 
+                  />
+                  <p className="text-[10px] text-muted-foreground">Provide a link for customers to pay once repair is complete.</p>
                 </div>
                 <Button 
                   type="submit" 

@@ -8,12 +8,12 @@ import {
   Smartphone, 
   CheckCircle2, 
   Clock, 
-  Settings, 
   ArrowRight,
   ShieldCheck,
   FileText,
   Download,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -27,7 +27,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchData() {
-      // Handle 'demo' by fetching the first customer if it's a demo link
       const idToFetch = resolvedParams.id === 'demo' ? '1' : resolvedParams.id;
       const data = await getCustomerById(idToFetch);
       setCustomer(data || null);
@@ -58,6 +57,11 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   const isCompleted = customer.repairStatus === 'Completed';
   const isPaid = customer.paymentStatus === 'Paid';
+
+  // Process parts as a list (split by newlines or commas)
+  const partsList = customer.repairedParts 
+    ? customer.repairedParts.split(/[\n,]/).map(p => p.trim()).filter(p => p !== "")
+    : [];
 
   return (
     <div className="min-h-screen bg-[#ECF2F9] py-12 px-4">
@@ -91,14 +95,24 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
             <div className="space-y-8">
               <RepairTimeline status={customer.repairStatus} />
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+              <div className="grid grid-cols-1 gap-6 pt-4 border-t">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight mb-1">Issue</p>
-                  <p className="text-sm font-medium">{customer.issueDescription}</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight mb-2">Original Issue</p>
+                  <p className="text-sm font-medium p-4 bg-muted/20 rounded-xl border border-dashed">{customer.issueDescription}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight mb-1">Parts Replaced</p>
-                  <p className="text-sm font-medium">{customer.repairedParts || 'TBD'}</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight mb-2">Parts Replaced</p>
+                  {partsList.length > 0 ? (
+                    <ul className="space-y-2">
+                      {partsList.map((part, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm font-medium bg-emerald-50/50 p-2 rounded-lg border border-emerald-100">
+                          <Check className="w-3 h-3 text-emerald-600" /> {part}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">No parts listed yet.</p>
+                  )}
                 </div>
               </div>
 
@@ -109,13 +123,17 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                     <p className="text-sm text-amber-800/80">Your device is ready for pickup. Please settle the remaining charges.</p>
                   </div>
                   <div className="text-3xl font-bold text-foreground">
-                    ${customer.estimatedCharges.toFixed(2)}
+                    ₹{customer.estimatedCharges.toFixed(2)}
                   </div>
-                  <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20" asChild>
-                    <Link href={customer.paymentLink || '#'} target="_blank">
-                      Pay Now <ArrowRight className="w-5 h-5 ml-2" />
-                    </Link>
-                  </Button>
+                  {customer.paymentLink ? (
+                    <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20" asChild>
+                      <Link href={customer.paymentLink} target="_blank">
+                        Pay Online <ArrowRight className="w-5 h-5 ml-2" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground bg-white/50 p-2 rounded-lg border">Please visit the shop to complete payment.</p>
+                  )}
                 </div>
               )}
 

@@ -14,12 +14,12 @@ import {
   Search, 
   Filter, 
   ExternalLink,
-  MessageSquare,
   MoreHorizontal
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import WhatsAppAction from '@/components/WhatsAppAction';
+import { cn } from '@/lib/utils';
 
 export default async function CustomersPage() {
   const customers = await getCustomers();
@@ -99,7 +99,7 @@ export default async function CustomersPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="font-bold">
-                  ${customer.estimatedCharges.toFixed(2)}
+                  ₹{customer.estimatedCharges.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
@@ -120,5 +120,3 @@ export default async function CustomersPage() {
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';

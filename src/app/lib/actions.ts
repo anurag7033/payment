@@ -14,6 +14,7 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
     const repairedParts = formData.get('repairedParts') as string;
     const repairStatus = formData.get('repairStatus') as any;
     const paymentStatus = formData.get('paymentStatus') as any;
+    const paymentLink = formData.get('paymentLink') as string;
 
     const newCustomer = await addCustomer({
       name,
@@ -24,6 +25,7 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
       repairedParts,
       repairStatus,
       paymentStatus,
+      paymentLink,
     });
 
     revalidatePath('/admin/customers');

@@ -3,15 +3,16 @@ import {
   Users, 
   Clock, 
   CheckCircle2, 
-  DollarSign, 
+  IndianRupee, 
   TrendingUp, 
   Smartphone,
-  ArrowUpRight,
   MoreVertical
 } from 'lucide-react';
 import { getCustomers } from '../lib/db';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default async function AdminDashboard() {
   const customers = await getCustomers();
@@ -27,7 +28,7 @@ export default async function AdminDashboard() {
     { label: 'Total Customers', value: totalCustomers, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Pending Payments', value: pendingPayments, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
     { label: 'Completed Repairs', value: completedRepairs, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Total Earnings', value: `$${totalEarnings}`, icon: DollarSign, color: 'text-secondary', bg: 'bg-secondary/10' },
+    { label: 'Total Earnings', value: `₹${totalEarnings}`, icon: IndianRupee, color: 'text-secondary', bg: 'bg-secondary/10' },
   ];
 
   return (
@@ -84,7 +85,7 @@ export default async function AdminDashboard() {
                     <Badge variant={customer.repairStatus === 'Completed' ? 'default' : 'secondary'} className="rounded-full px-3">
                       {customer.repairStatus}
                     </Badge>
-                    <p className="text-sm font-bold">${customer.estimatedCharges}</p>
+                    <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
                     <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
                   </div>
                 </div>
@@ -133,6 +134,3 @@ export default async function AdminDashboard() {
     </div>
   );
 }
-
-import { cn } from '@/lib/utils';
-import Link from 'next/link';

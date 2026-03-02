@@ -1,5 +1,4 @@
 import { getCustomerById } from '@/app/lib/db';
-import { NextResponse } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -8,6 +7,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!customer) {
     return new Response('Not Found', { status: 404 });
   }
+
+  const partsList = customer.repairedParts 
+    ? customer.repairedParts.split(/[\n,]/).map(p => p.trim()).filter(p => p !== "")
+    : ["No parts listed"];
 
   // In a real app, this would return a PDF. 
   // For now, we return a simple HTML preview that looks like an invoice.
@@ -57,26 +60,30 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           <thead>
             <tr>
               <th>Description</th>
-              <th>Parts</th>
+              <th>Parts Replaced</th>
               <th style="text-align: right;">Amount</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Repair Service: ${customer.issueDescription}</td>
-              <td>${customer.repairedParts || 'N/A'}</td>
-              <td style="text-align: right;">$${customer.estimatedCharges.toFixed(2)}</td>
+              <td>
+                <ul style="padding-left: 16px; margin: 0;">
+                  ${partsList.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+              </td>
+              <td style="text-align: right;">₹${customer.estimatedCharges.toFixed(2)}</td>
             </tr>
           </tbody>
         </table>
 
         <div class="total-row">
-          <span>Total Paid: $${customer.estimatedCharges.toFixed(2)}</span>
+          <span>Total Paid: ₹${customer.estimatedCharges.toFixed(2)}</span>
         </div>
 
         <div class="footer">
           <p>Thank you for your business! FixFlow Pro Repair Systems</p>
-          <p>Support: +1 800-FIX-FLOW | Web: www.fixflowpro.com</p>
+          <p>Support: +91 800-FIX-FLOW | Web: www.fixflowpro.com</p>
         </div>
         <script>window.print();</script>
       </body>
