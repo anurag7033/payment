@@ -34,8 +34,8 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
       paymentLink,
     });
 
-    revalidatePath('/admin/customers');
     revalidatePath('/admin');
+    revalidatePath('/admin/customers');
     
     return { 
       success: true, 
@@ -52,16 +52,25 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
 }
 
 export async function updateCustomerAction(id: string, data: Partial<CustomerRecord>) {
-  await updateCustomer(id, data);
-  revalidatePath('/admin/customers');
-  revalidatePath('/admin');
-  revalidatePath(`/track/${id}`);
+  try {
+    await updateCustomer(id, data);
+    revalidatePath('/admin');
+    revalidatePath('/admin/customers');
+    const customer = await getCustomerById(id);
+    if (customer) {
+      revalidatePath(`/track/${customer.trackingId}`);
+    }
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: 'Failed to update record.' };
+  }
 }
 
 export async function deleteCustomerAction(id: string) {
   await deleteCustomer(id);
-  revalidatePath('/admin/customers');
   revalidatePath('/admin');
+  revalidatePath('/admin/customers');
 }
 
 export async function getWhatsAppPreview(id: string) {

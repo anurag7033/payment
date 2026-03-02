@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import WhatsAppAction from '@/components/WhatsAppAction';
 import DeleteCustomerAction from '@/components/DeleteCustomerAction';
+import EditRepairAction from '@/components/EditRepairAction';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -109,6 +110,7 @@ export default async function CustomersPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <EditRepairAction customer={customer} />
                       <WhatsAppAction customerId={customer.id} />
                       <Button asChild variant="ghost" size="icon" title="View Tracking Page">
                         <Link href={`/track/${customer.trackingId}`} target="_blank">
