@@ -16,36 +16,44 @@ export interface CustomerRecord {
   createdAt: string;
 }
 
-// In-memory store (will reset on server restart, but works for the demo/prototype)
-let customers: CustomerRecord[] = [
-  {
-    id: '1',
-    name: 'Rahul Sharma',
-    phoneNumber: '+91 9876543210',
-    deviceModel: 'iPhone 13 Pro',
-    issueDescription: 'Cracked screen and battery draining fast',
-    estimatedCharges: 12500,
-    repairedParts: 'Original Screen\nHigh Capacity Battery',
-    repairStatus: 'Completed',
-    paymentStatus: 'Unpaid',
-    paymentLink: 'https://razorpay.me/@fixflow_demo',
-    trackingId: 'TRK-9921-A',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Anjali Gupta',
-    phoneNumber: '+91 8888877777',
-    deviceModel: 'Samsung Galaxy S22',
-    issueDescription: 'Water damage',
-    estimatedCharges: 4500,
-    repairedParts: '',
-    repairStatus: 'In Progress',
-    paymentStatus: 'Unpaid',
-    trackingId: 'TRK-4452-B',
-    createdAt: new Date().toISOString(),
-  }
-];
+// Ensure the database persists across hot-reloads in development
+const globalForDb = global as unknown as { 
+  customers: CustomerRecord[] | undefined 
+};
+
+if (!globalForDb.customers) {
+  globalForDb.customers = [
+    {
+      id: '1',
+      name: 'Rahul Sharma',
+      phoneNumber: '+91 9876543210',
+      deviceModel: 'iPhone 13 Pro',
+      issueDescription: 'Cracked screen and battery draining fast',
+      estimatedCharges: 12500,
+      repairedParts: 'Original Screen\nHigh Capacity Battery',
+      repairStatus: 'Completed',
+      paymentStatus: 'Unpaid',
+      paymentLink: 'https://razorpay.me/@fixflow_demo',
+      trackingId: 'TRK-9921-A',
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: '2',
+      name: 'Anjali Gupta',
+      phoneNumber: '+91 8888877777',
+      deviceModel: 'Samsung Galaxy S22',
+      issueDescription: 'Water damage',
+      estimatedCharges: 4500,
+      repairedParts: '',
+      repairStatus: 'In Progress',
+      paymentStatus: 'Unpaid',
+      trackingId: 'TRK-4452-B',
+      createdAt: new Date().toISOString(),
+    }
+  ];
+}
+
+const customers = globalForDb.customers;
 
 export const getCustomers = async () => [...customers];
 
@@ -80,5 +88,8 @@ export const updateCustomer = async (id: string, data: Partial<CustomerRecord>) 
 };
 
 export const deleteCustomer = async (id: string) => {
-  customers = customers.filter(c => c.id !== id);
+  const index = customers.findIndex(c => c.id === id);
+  if (index !== -1) {
+    customers.splice(index, 1);
+  }
 };

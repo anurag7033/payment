@@ -6,7 +6,6 @@ import {
   IndianRupee, 
   TrendingUp, 
   Smartphone,
-  MoreVertical,
   ArrowRight
 } from 'lucide-react';
 import { getCustomers } from '../lib/db';
@@ -23,9 +22,11 @@ export default async function AdminDashboard() {
   const totalCustomers = customers.length;
   const pendingPayments = customers.filter(c => c.paymentStatus === 'Unpaid').length;
   const completedRepairs = customers.filter(c => c.repairStatus === 'Completed').length;
+  
+  // Calculate earnings carefully, ensuring values are numbers
   const totalEarnings = customers
     .filter(c => c.paymentStatus === 'Paid')
-    .reduce((sum, c) => sum + c.estimatedCharges, 0);
+    .reduce((sum, c) => sum + (Number(c.estimatedCharges) || 0), 0);
 
   const stats = [
     { 
@@ -54,7 +55,7 @@ export default async function AdminDashboard() {
     },
     { 
       label: 'Total Earnings', 
-      value: `₹${totalEarnings}`, 
+      value: `₹${totalEarnings.toLocaleString()}`, 
       icon: IndianRupee, 
       color: 'text-secondary', 
       bg: 'bg-secondary/10',
@@ -137,7 +138,7 @@ export default async function AdminDashboard() {
                             {customer.paymentStatus}
                           </Badge>
                         </div>
-                        <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
+                        <p className="text-sm font-bold">₹{customer.estimatedCharges.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -168,7 +169,7 @@ export default async function AdminDashboard() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Database Sync</span>
-                <span className="text-emerald-600 font-medium">Healthy</span>
+                <span className="text-emerald-600 font-medium">Healthy (Global State)</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">WhatsApp API</span>
