@@ -14,7 +14,8 @@ import {
   Search, 
   Filter, 
   ExternalLink,
-  X
+  X,
+  Check
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
@@ -22,6 +23,17 @@ import WhatsAppAction from '@/components/WhatsAppAction';
 import DeleteCustomerAction from '@/components/DeleteCustomerAction';
 import EditRepairAction from '@/components/EditRepairAction';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 
 export const dynamic = 'force-dynamic';
 
@@ -33,10 +45,21 @@ export default async function CustomersPage({
   const params = await searchParams;
   const repairStatusFilter = params.repairStatus as string;
   const paymentStatusFilter = params.paymentStatus as string;
+  const searchQuery = params.search as string;
 
   let customers = await getCustomers();
 
-  // Apply Filters from Dashboard
+  // Apply Search
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    customers = customers.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      c.deviceModel.toLowerCase().includes(q) || 
+      c.trackingId.toLowerCase().includes(q)
+    );
+  }
+
+  // Apply Filters
   if (repairStatusFilter) {
     customers = customers.filter(c => c.repairStatus === repairStatusFilter);
   }
@@ -44,7 +67,7 @@ export default async function CustomersPage({
     customers = customers.filter(c => c.paymentStatus === paymentStatusFilter);
   }
 
-  const hasFilters = repairStatusFilter || paymentStatusFilter;
+  const hasFilters = repairStatusFilter || paymentStatusFilter || searchQuery;
 
   return (
     <div className="space-y-6">
@@ -57,7 +80,7 @@ export default async function CustomersPage({
           {hasFilters && (
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
               <Link href="/admin/customers">
-                <X className="w-4 h-4 mr-2" /> Clear Filters
+                <X className="w-4 h-4 mr-2" /> Clear All
               </Link>
             </Button>
           )}
@@ -71,21 +94,77 @@ export default async function CustomersPage({
 
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="p-4 border-b flex flex-col md:flex-row gap-4 justify-between bg-muted/10">
-          <div className="relative max-w-sm w-full">
+          <form className="relative max-w-sm w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Filter records..." className="pl-10 h-10 rounded-lg bg-white" />
-          </div>
+            <Input 
+              name="search"
+              defaultValue={searchQuery}
+              placeholder="Search name, device or ID..." 
+              className="pl-10 h-10 rounded-lg bg-white" 
+            />
+          </form>
           <div className="flex items-center gap-2">
-            {hasFilters && (
-              <Badge variant="secondary" className="px-3 py-1 font-medium bg-primary/10 text-primary border-none">
-                Filtered: {repairStatusFilter || paymentStatusFilter}
-              </Badge>
-            )}
-            <Button variant="outline" size="sm" className="rounded-lg">
-              <Filter className="w-4 h-4 mr-2" /> Filter Options
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="rounded-lg">
+                  <Filter className="w-4 h-4 mr-2" /> Filter Options
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Filter Results</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Repair Status</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {['Pending', 'In Progress', 'Completed'].map((status) => (
+                      <DropdownMenuItem key={status} asChild>
+                        <Link href={`/admin/customers?repairStatus=${status}${paymentStatusFilter ? `&paymentStatus=${paymentStatusFilter}` : ''}${searchQuery ? `&search=${searchQuery}` : ''}`} className="flex items-center justify-between">
+                          {status}
+                          {repairStatusFilter === status && <Check className="w-4 h-4" />}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Payment Status</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {['Unpaid', 'Partially Paid', 'Paid'].map((status) => (
+                      <DropdownMenuItem key={status} asChild>
+                        <Link href={`/admin/customers?paymentStatus=${status}${repairStatusFilter ? `&repairStatus=${repairStatusFilter}` : ''}${searchQuery ? `&search=${searchQuery}` : ''}`} className="flex items-center justify-between">
+                          {status}
+                          {paymentStatusFilter === status && <Check className="w-4 h-4" />}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="text-destructive focus:text-destructive">
+                  <Link href="/admin/customers">Clear Filters</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
+
+        {hasFilters && (
+          <div className="px-4 py-2 bg-primary/5 border-b flex flex-wrap gap-2 items-center">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mr-2">Active Filters:</span>
+            {searchQuery && (
+              <Badge variant="secondary" className="bg-white border text-xs">Search: {searchQuery}</Badge>
+            )}
+            {repairStatusFilter && (
+              <Badge variant="secondary" className="bg-white border text-xs">Status: {repairStatusFilter}</Badge>
+            )}
+            {paymentStatusFilter && (
+              <Badge variant="secondary" className="bg-white border text-xs">Payment: {paymentStatusFilter}</Badge>
+            )}
+          </div>
+        )}
 
         <Table>
           <TableHeader>
@@ -102,7 +181,7 @@ export default async function CustomersPage({
             {customers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                  {hasFilters ? "No customers match the current filter." : "No customers registered yet."}
+                  {hasFilters ? "No customers match the current criteria." : "No customers registered yet."}
                 </TableCell>
               </TableRow>
             ) : (
