@@ -13,7 +13,8 @@ import {
   Plus, 
   Search, 
   Filter, 
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
@@ -24,8 +25,26 @@ import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
-export default async function CustomersPage() {
-  const customers = await getCustomers();
+export default async function CustomersPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> 
+}) {
+  const params = await searchParams;
+  const repairStatusFilter = params.repairStatus as string;
+  const paymentStatusFilter = params.paymentStatus as string;
+
+  let customers = await getCustomers();
+
+  // Apply Filters from Dashboard
+  if (repairStatusFilter) {
+    customers = customers.filter(c => c.repairStatus === repairStatusFilter);
+  }
+  if (paymentStatusFilter) {
+    customers = customers.filter(c => c.paymentStatus === paymentStatusFilter);
+  }
+
+  const hasFilters = repairStatusFilter || paymentStatusFilter;
 
   return (
     <div className="space-y-6">
@@ -34,11 +53,20 @@ export default async function CustomersPage() {
           <h1 className="text-2xl font-headline font-bold">Manage Customers</h1>
           <p className="text-sm text-muted-foreground">View and manage all repair records in your shop.</p>
         </div>
-        <Button asChild className="rounded-full shadow-md">
-          <Link href="/admin/customers/new">
-            <Plus className="w-4 h-4 mr-2" /> New Customer
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          {hasFilters && (
+            <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
+              <Link href="/admin/customers">
+                <X className="w-4 h-4 mr-2" /> Clear Filters
+              </Link>
+            </Button>
+          )}
+          <Button asChild className="rounded-full shadow-md">
+            <Link href="/admin/customers/new">
+              <Plus className="w-4 h-4 mr-2" /> New Customer
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -48,8 +76,13 @@ export default async function CustomersPage() {
             <Input placeholder="Filter records..." className="pl-10 h-10 rounded-lg bg-white" />
           </div>
           <div className="flex items-center gap-2">
+            {hasFilters && (
+              <Badge variant="secondary" className="px-3 py-1 font-medium bg-primary/10 text-primary border-none">
+                Filtered: {repairStatusFilter || paymentStatusFilter}
+              </Badge>
+            )}
             <Button variant="outline" size="sm" className="rounded-lg">
-              <Filter className="w-4 h-4 mr-2" /> Status
+              <Filter className="w-4 h-4 mr-2" /> Filter Options
             </Button>
           </div>
         </div>
@@ -69,7 +102,7 @@ export default async function CustomersPage() {
             {customers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                  No customers registered yet.
+                  {hasFilters ? "No customers match the current filter." : "No customers registered yet."}
                 </TableCell>
               </TableRow>
             ) : (

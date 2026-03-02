@@ -6,7 +6,8 @@ import {
   IndianRupee, 
   TrendingUp, 
   Smartphone,
-  MoreVertical
+  MoreVertical,
+  ArrowRight
 } from 'lucide-react';
 import { getCustomers } from '../lib/db';
 import { Badge } from '@/components/ui/badge';
@@ -27,10 +28,38 @@ export default async function AdminDashboard() {
     .reduce((sum, c) => sum + c.estimatedCharges, 0);
 
   const stats = [
-    { label: 'Total Customers', value: totalCustomers, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Pending Payments', value: pendingPayments, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: 'Completed Repairs', value: completedRepairs, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Total Earnings', value: `₹${totalEarnings}`, icon: IndianRupee, color: 'text-secondary', bg: 'bg-secondary/10' },
+    { 
+      label: 'Total Customers', 
+      value: totalCustomers, 
+      icon: Users, 
+      color: 'text-blue-600', 
+      bg: 'bg-blue-50',
+      href: '/admin/customers'
+    },
+    { 
+      label: 'Pending Payments', 
+      value: pendingPayments, 
+      icon: Clock, 
+      color: 'text-amber-600', 
+      bg: 'bg-amber-50',
+      href: '/admin/customers?paymentStatus=Unpaid'
+    },
+    { 
+      label: 'Completed Repairs', 
+      value: completedRepairs, 
+      icon: CheckCircle2, 
+      color: 'text-emerald-600', 
+      bg: 'bg-emerald-50',
+      href: '/admin/customers?repairStatus=Completed'
+    },
+    { 
+      label: 'Total Earnings', 
+      value: `₹${totalEarnings}`, 
+      icon: IndianRupee, 
+      color: 'text-secondary', 
+      bg: 'bg-secondary/10',
+      href: '/admin/customers?paymentStatus=Paid'
+    },
   ];
 
   return (
@@ -43,23 +72,25 @@ export default async function AdminDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <Card key={stat.label} className="border-none shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={cn("p-3 rounded-xl", stat.bg)}>
-                  <stat.icon className={cn("w-6 h-6", stat.color)} />
+          <Link key={stat.label} href={stat.href} className="block group">
+            <Card className="border-none shadow-sm group-hover:shadow-md transition-all group-hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={cn("p-3 rounded-xl transition-colors", stat.bg)}>
+                    <stat.icon className={cn("w-6 h-6", stat.color)} />
+                  </div>
+                  <div className="flex items-center text-xs text-emerald-600 font-medium">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +12%
+                  </div>
                 </div>
-                <div className="flex items-center text-xs text-emerald-600 font-medium">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  +12%
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-headline font-bold">{stat.value}</p>
                 </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                <p className="text-2xl font-headline font-bold">{stat.value}</p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -68,7 +99,9 @@ export default async function AdminDashboard() {
         <Card className="lg:col-span-2 border-none shadow-sm overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/30">
             <CardTitle className="text-lg">Recent Repairs</CardTitle>
-            <Button variant="ghost" size="sm">View All</Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/admin/customers">View All <ArrowRight className="ml-2 w-3 h-3" /></Link>
+            </Button>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
@@ -109,7 +142,7 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-sm opacity-90 mb-6">Received a new device for repair? Start the flow quickly.</p>
-              <Button asChild variant="secondary" className="w-full shadow-lg">
+              <Button asChild variant="secondary" className="w-full shadow-lg font-bold">
                 <Link href="/admin/customers/new">New Customer Intake</Link>
               </Button>
             </CardContent>
