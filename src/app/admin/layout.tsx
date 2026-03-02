@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
@@ -21,12 +21,18 @@ import { cn } from '@/lib/utils';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Customers', href: '/admin/customers', icon: Users },
   ];
+
+  const handleSignOut = () => {
+    // Redirect to login page for mock authentication
+    router.push('/login');
+  };
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -67,7 +73,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="p-4 mt-auto">
           <Separator className="mb-4" />
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+          <Button 
+            variant="ghost" 
+            onClick={handleSignOut}
+            className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          >
             <LogOut className="w-5 h-5 mr-3 shrink-0" />
             {sidebarOpen && <span>Sign Out</span>}
           </Button>
