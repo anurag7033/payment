@@ -25,10 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from 'next/navigation';
 
 export default function EditRepairAction({ customer }: { customer: CustomerRecord }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     repairStatus: customer.repairStatus,
     paymentStatus: customer.paymentStatus,
@@ -47,6 +49,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
           description: "Repair record has been successfully updated.",
         });
         setOpen(false);
+        router.refresh(); // Force refresh to update dashboard stats
       } else {
         throw new Error(result.message);
       }

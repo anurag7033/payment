@@ -122,10 +122,23 @@ export default async function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <Badge variant={customer.repairStatus === 'Completed' ? 'default' : 'secondary'} className="rounded-full px-3">
-                        {customer.repairStatus}
-                      </Badge>
-                      <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant={customer.repairStatus === 'Completed' ? 'default' : 'secondary'} className="rounded-full px-3 text-[10px]">
+                            {customer.repairStatus}
+                          </Badge>
+                          <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "rounded-full px-2 text-[10px] border-none",
+                              customer.paymentStatus === 'Paid' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                            )}
+                          >
+                            {customer.paymentStatus}
+                          </Badge>
+                        </div>
+                        <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
+                      </div>
                     </div>
                   </div>
                 ))

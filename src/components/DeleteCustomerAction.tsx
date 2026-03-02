@@ -16,9 +16,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from 'next/navigation';
 
 export default function DeleteCustomerAction({ customerId }: { customerId: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -28,6 +30,7 @@ export default function DeleteCustomerAction({ customerId }: { customerId: strin
         title: "Deleted",
         description: "Repair record has been removed.",
       });
+      router.refresh(); // Force refresh to update dashboard stats
     } catch (error) {
       toast({
         variant: "destructive",
