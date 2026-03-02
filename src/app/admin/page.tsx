@@ -14,6 +14,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   const customers = await getCustomers();
   
@@ -70,26 +72,31 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {customers.slice(0, 5).map((customer) => (
-                <div key={customer.id} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <Smartphone className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold">{customer.name}</p>
-                      <p className="text-xs text-muted-foreground">{customer.deviceModel} • {customer.trackingId}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Badge variant={customer.repairStatus === 'Completed' ? 'default' : 'secondary'} className="rounded-full px-3">
-                      {customer.repairStatus}
-                    </Badge>
-                    <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
-                    <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                  </div>
+              {customers.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  No repair records found.
                 </div>
-              ))}
+              ) : (
+                customers.slice().reverse().slice(0, 5).map((customer) => (
+                  <div key={customer.id} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <Smartphone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">{customer.name}</p>
+                        <p className="text-xs text-muted-foreground">{customer.deviceModel} • {customer.trackingId}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={customer.repairStatus === 'Completed' ? 'default' : 'secondary'} className="rounded-full px-3">
+                        {customer.repairStatus}
+                      </Badge>
+                      <p className="text-sm font-bold">₹{customer.estimatedCharges}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -122,9 +129,9 @@ export default async function AdminDashboard() {
                 <span className="text-emerald-600 font-medium">Connected</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Storage (92%)</span>
+                <span className="text-muted-foreground">Storage (Used)</span>
                 <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="bg-primary h-full w-[92%]"></div>
+                  <div className="bg-primary h-full w-[15%]"></div>
                 </div>
               </div>
             </CardContent>
