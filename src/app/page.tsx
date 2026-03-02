@@ -22,7 +22,7 @@ export default function Home() {
           </Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="rounded-full px-8">
-          <Link href="/track/demo" className="flex items-center gap-2">
+          <Link href="/track" className="flex items-center gap-2">
             Track Device
           </Link>
         </Button>
