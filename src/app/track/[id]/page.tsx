@@ -29,10 +29,18 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function fetchData() {
-      // We must use a server action to fetch the data from the server's memory
-      const data = await getCustomerAction(resolvedParams.id);
-      setCustomer(data || null);
-      setLoading(false);
+      if (!resolvedParams?.id) return;
+      
+      try {
+        // We must use a server action to fetch the data from the server's memory
+        const data = await getCustomerAction(decodeURIComponent(resolvedParams.id));
+        setCustomer(data || null);
+      } catch (error) {
+        console.error("Failed to fetch tracking data", error);
+        setCustomer(null);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, [resolvedParams.id]);
@@ -50,7 +58,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#ECF2F9]">
         <h1 className="text-4xl font-bold mb-4">No Record Found</h1>
         <p className="text-muted-foreground mb-8 text-center max-w-md">
-          Sorry, we couldn't find a repair record for the tracking ID: <span className="font-bold text-foreground">"{resolvedParams.id}"</span>. 
+          Sorry, we couldn't find a repair record for the tracking ID: <span className="font-bold text-foreground">"{decodeURIComponent(resolvedParams.id)}"</span>. 
           Please double-check the ID and try again.
         </p>
         <Button asChild className="rounded-full">

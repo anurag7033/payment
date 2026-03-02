@@ -15,7 +15,8 @@ export default function TrackLandingPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (trackingId.trim()) {
-      router.push(`/track/${trackingId.trim()}`);
+      // Navigate to the tracking details page
+      router.push(`/track/${encodeURIComponent(trackingId.trim())}`);
     }
   };
 
