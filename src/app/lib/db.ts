@@ -22,35 +22,8 @@ const globalForDb = global as unknown as {
 };
 
 if (!globalForDb.customers) {
-  globalForDb.customers = [
-    {
-      id: '1',
-      name: 'Rahul Sharma',
-      phoneNumber: '+91 9876543210',
-      deviceModel: 'iPhone 13 Pro',
-      issueDescription: 'Cracked screen and battery draining fast',
-      estimatedCharges: 12500,
-      repairedParts: 'Original Screen\nHigh Capacity Battery',
-      repairStatus: 'Completed',
-      paymentStatus: 'Unpaid',
-      paymentLink: 'https://razorpay.me/@fixflow_demo',
-      trackingId: 'TRK-9921-A',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      name: 'Anjali Gupta',
-      phoneNumber: '+91 8888877777',
-      deviceModel: 'Samsung Galaxy S22',
-      issueDescription: 'Water damage',
-      estimatedCharges: 4500,
-      repairedParts: '',
-      repairStatus: 'In Progress',
-      paymentStatus: 'Unpaid',
-      trackingId: 'TRK-4452-B',
-      createdAt: new Date().toISOString(),
-    }
-  ];
+  // Started with an empty array for a fully functional, empty-state experience.
+  globalForDb.customers = [];
 }
 
 const customers = globalForDb.customers;
