@@ -11,7 +11,8 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
     const deviceModel = formData.get('deviceModel') as string;
     const issueDescription = formData.get('issueDescription') as string;
     const trackingId = formData.get('trackingId') as string;
-    const estimatedCharges = Number(formData.get('estimatedCharges'));
+    const estimatedCharges = Number(formData.get('estimatedCharges')) || 0;
+    const paidAmount = Number(formData.get('paidAmount')) || 0;
     const repairedParts = formData.get('repairedParts') as string;
     const repairStatus = formData.get('repairStatus') as any;
     const paymentStatus = formData.get('paymentStatus') as any;
@@ -28,6 +29,7 @@ export async function createCustomerAction(prevState: any, formData: FormData) {
       issueDescription,
       trackingId,
       estimatedCharges,
+      paidAmount,
       repairedParts,
       repairStatus,
       paymentStatus,

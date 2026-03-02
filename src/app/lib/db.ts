@@ -1,5 +1,5 @@
 export type RepairStatus = 'Pending' | 'In Progress' | 'Completed';
-export type PaymentStatus = 'Unpaid' | 'Paid';
+export type PaymentStatus = 'Unpaid' | 'Partially Paid' | 'Paid';
 
 export interface CustomerRecord {
   id: string;
@@ -8,6 +8,7 @@ export interface CustomerRecord {
   deviceModel: string;
   issueDescription: string;
   estimatedCharges: number;
+  paidAmount: number;
   repairedParts: string;
   repairStatus: RepairStatus;
   paymentStatus: PaymentStatus;
@@ -22,7 +23,6 @@ const globalForDb = global as unknown as {
 };
 
 if (!globalForDb.customers) {
-  // Started with an empty array for a fully functional, empty-state experience.
   globalForDb.customers = [];
 }
 

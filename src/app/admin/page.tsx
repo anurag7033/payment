@@ -20,13 +20,12 @@ export default async function AdminDashboard() {
   const customers = await getCustomers();
   
   const totalCustomers = customers.length;
-  const pendingPayments = customers.filter(c => c.paymentStatus === 'Unpaid').length;
+  const pendingPayments = customers.filter(c => c.paymentStatus !== 'Paid').length;
   const completedRepairs = customers.filter(c => c.repairStatus === 'Completed').length;
   
-  // Calculate earnings carefully, ensuring values are numbers
+  // Earnings based on actual paid amounts
   const totalEarnings = customers
-    .filter(c => c.paymentStatus === 'Paid')
-    .reduce((sum, c) => sum + (Number(c.estimatedCharges) || 0), 0);
+    .reduce((sum, c) => sum + (Number(c.paidAmount) || 0), 0);
 
   const stats = [
     { 
@@ -54,12 +53,12 @@ export default async function AdminDashboard() {
       href: '/admin/customers?repairStatus=Completed'
     },
     { 
-      label: 'Total Earnings', 
+      label: 'Total Collected', 
       value: `₹${totalEarnings.toLocaleString()}`, 
       icon: IndianRupee, 
       color: 'text-secondary', 
       bg: 'bg-secondary/10',
-      href: '/admin/customers?paymentStatus=Paid'
+      href: '/admin/customers'
     },
   ];
 
@@ -132,13 +131,14 @@ export default async function AdminDashboard() {
                             variant="outline" 
                             className={cn(
                               "rounded-full px-2 text-[10px] border-none",
-                              customer.paymentStatus === 'Paid' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                              customer.paymentStatus === 'Paid' ? "bg-emerald-100 text-emerald-700" : 
+                              customer.paymentStatus === 'Partially Paid' ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
                             )}
                           >
                             {customer.paymentStatus}
                           </Badge>
                         </div>
-                        <p className="text-sm font-bold">₹{customer.estimatedCharges.toLocaleString()}</p>
+                        <p className="text-sm font-bold">₹{customer.paidAmount.toLocaleString()} / ₹{customer.estimatedCharges.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>

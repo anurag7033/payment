@@ -15,7 +15,9 @@ import {
   Download,
   Loader2,
   Check,
-  ChevronLeft
+  ChevronLeft,
+  IndianRupee,
+  Wallet
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -32,7 +34,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
       if (!resolvedParams?.id) return;
       
       try {
-        // We must use a server action to fetch the data from the server's memory
         const data = await getCustomerAction(decodeURIComponent(resolvedParams.id));
         setCustomer(data || null);
       } catch (error) {
@@ -72,6 +73,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   const isCompleted = customer.repairStatus === 'Completed';
   const isPaid = customer.paymentStatus === 'Paid';
+  const remainingAmount = customer.estimatedCharges - (customer.paidAmount || 0);
 
   const partsList = customer.repairedParts 
     ? customer.repairedParts.split(/[\n,]/).map(p => p.trim()).filter(p => p !== "")
@@ -128,14 +130,34 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                 </div>
               </div>
 
-              {isCompleted && !isPaid && (
+              <div className="bg-muted/10 p-4 rounded-2xl space-y-3">
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-tight">Payment Summary</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Estimated Total</p>
+                    <p className="text-lg font-bold">₹{customer.estimatedCharges.toFixed(2)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Paid Amount</p>
+                    <p className="text-lg font-bold text-emerald-600">₹{customer.paidAmount?.toFixed(2) || '0.00'}</p>
+                  </div>
+                </div>
+                {remainingAmount > 0 && (
+                  <div className="pt-2 border-t flex justify-between items-center">
+                    <span className="text-sm font-medium">Remaining Balance:</span>
+                    <span className="text-xl font-black text-primary">₹{remainingAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              {isCompleted && remainingAmount > 0 && (
                 <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 flex flex-col items-center text-center space-y-4">
                   <div className="space-y-1">
                     <p className="text-amber-600 font-bold text-lg">Repair Completed!</p>
                     <p className="text-sm text-amber-800/80">Your device is ready for pickup. Please settle the remaining charges.</p>
                   </div>
                   <div className="text-3xl font-bold text-foreground">
-                    ₹{customer.estimatedCharges.toFixed(2)}
+                    ₹{remainingAmount.toFixed(2)}
                   </div>
                   {customer.paymentLink ? (
                     <Button className="w-full py-6 text-lg rounded-2xl shadow-lg shadow-primary/20" asChild>
@@ -162,11 +184,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                     <Button variant="outline" className="w-full rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-100" asChild>
                       <Link href={`/api/invoice/${customer.id}`}>
                         <FileText className="w-4 h-4 mr-2" /> View Invoice
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" className="w-full text-emerald-700 hover:bg-emerald-50" asChild>
-                      <Link href={`/api/invoice/${customer.id}?download=true`}>
-                        <Download className="w-4 h-4 mr-2" /> Download PDF
                       </Link>
                     </Button>
                   </div>

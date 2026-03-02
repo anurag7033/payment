@@ -12,8 +12,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ? customer.repairedParts.split(/[\n,]/).map(p => p.trim()).filter(p => p !== "")
     : ["No parts listed"];
 
-  // In a real app, this would return a PDF. 
-  // For now, we return a simple HTML preview that looks like an invoice.
+  const remaining = customer.estimatedCharges - (customer.paidAmount || 0);
+
   const html = `
     <html>
       <head>
@@ -29,7 +29,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
           th { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #64748b; }
           td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-          .total-row { display: flex; justify-content: flex-end; font-size: 18px; font-weight: 800; }
+          .summary { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 14px; }
+          .total-row { font-size: 18px; font-weight: 800; color: #5595D3; margin-top: 8px; }
           .footer { margin-top: 100px; font-size: 12px; color: #64748b; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; }
         </style>
       </head>
@@ -77,8 +78,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           </tbody>
         </table>
 
-        <div class="total-row">
-          <span>Total Paid: ₹${customer.estimatedCharges.toFixed(2)}</span>
+        <div class="summary">
+          <div>Total Charges: ₹${customer.estimatedCharges.toFixed(2)}</div>
+          <div style="color: #10b981;">Amount Paid: ₹${(customer.paidAmount || 0).toFixed(2)}</div>
+          <div class="total-row">Remaining Due: ₹${remaining.toFixed(2)}</div>
         </div>
 
         <div class="footer">

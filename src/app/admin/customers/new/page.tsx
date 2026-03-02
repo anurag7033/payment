@@ -25,7 +25,8 @@ import {
   Plus,
   Link as LinkIcon,
   Wrench,
-  Hash
+  Hash,
+  Wallet
 } from 'lucide-react';
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
@@ -241,6 +242,7 @@ export default function NewCustomerPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Unpaid">Unpaid</SelectItem>
+                        <SelectItem value="Partially Paid">Partially Paid</SelectItem>
                         <SelectItem value="Paid">Paid</SelectItem>
                       </SelectContent>
                     </Select>
@@ -257,9 +259,17 @@ export default function NewCustomerPage() {
                 <CardDescription>Costing and payment collection details.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="estimatedCharges">Estimated Charges (₹)</Label>
-                  <Input id="estimatedCharges" name="estimatedCharges" type="number" step="0.01" placeholder="0.00" required />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="estimatedCharges">Estimated Total (₹)</Label>
+                    <Input id="estimatedCharges" name="estimatedCharges" type="number" step="0.01" placeholder="0.00" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="paidAmount" className="flex items-center gap-1">
+                      <Wallet className="w-3 h-3" /> Paid Amount (₹)
+                    </Label>
+                    <Input id="paidAmount" name="paidAmount" type="number" step="0.01" placeholder="0.00" defaultValue="0" />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="paymentLink" className="flex items-center gap-1">

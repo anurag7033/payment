@@ -93,8 +93,8 @@ export default async function CustomersPage({
               <TableHead>Customer / Device</TableHead>
               <TableHead>Tracking ID</TableHead>
               <TableHead>Repair Status</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Total Charges</TableHead>
+              <TableHead>Payment Status</TableHead>
+              <TableHead>Balance (₹)</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -132,14 +132,18 @@ export default async function CustomersPage({
                     <Badge 
                       className={cn(
                         "rounded-full px-3 text-[10px] font-bold uppercase tracking-wider border-none",
-                        customer.paymentStatus === 'Paid' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        customer.paymentStatus === 'Paid' ? "bg-emerald-100 text-emerald-700" : 
+                        customer.paymentStatus === 'Partially Paid' ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
                       )}
                     >
                       {customer.paymentStatus}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-bold">
-                    ₹{customer.estimatedCharges.toFixed(2)}
+                    <div className="flex flex-col">
+                      <span className="text-emerald-600">Paid: ₹{customer.paidAmount?.toFixed(2) || '0.00'}</span>
+                      <span className="text-[10px] text-muted-foreground">Due: ₹{(customer.estimatedCharges - (customer.paidAmount || 0)).toFixed(2)}</span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">

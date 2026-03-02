@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit2, Loader2, Save } from 'lucide-react';
+import { Edit2, Loader2, Save, Wallet } from 'lucide-react';
 import { updateCustomerAction } from '@/app/lib/actions';
 import { CustomerRecord } from '@/app/lib/db';
 import { toast } from '@/hooks/use-toast';
@@ -35,6 +35,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
     repairStatus: customer.repairStatus,
     paymentStatus: customer.paymentStatus,
     estimatedCharges: customer.estimatedCharges,
+    paidAmount: customer.paidAmount || 0,
     repairedParts: customer.repairedParts,
     paymentLink: customer.paymentLink || '',
   });
@@ -49,7 +50,7 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
           description: "Repair record has been successfully updated.",
         });
         setOpen(false);
-        router.refresh(); // Force refresh to update dashboard stats
+        router.refresh();
       } else {
         throw new Error(result.message);
       }
@@ -107,19 +108,33 @@ export default function EditRepairAction({ customer }: { customer: CustomerRecor
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Unpaid">Unpaid</SelectItem>
+                  <SelectItem value="Partially Paid">Partially Paid</SelectItem>
                   <SelectItem value="Paid">Paid</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="estimatedCharges">Charges (₹)</Label>
-            <Input 
-              id="estimatedCharges" 
-              type="number" 
-              value={formData.estimatedCharges}
-              onChange={(e) => setFormData({ ...formData, estimatedCharges: Number(e.target.value) })}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="estimatedCharges">Total Total (₹)</Label>
+              <Input 
+                id="estimatedCharges" 
+                type="number" 
+                value={formData.estimatedCharges}
+                onChange={(e) => setFormData({ ...formData, estimatedCharges: Number(e.target.value) })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="paidAmount" className="flex items-center gap-1">
+                <Wallet className="w-3 h-3" /> Paid (₹)
+              </Label>
+              <Input 
+                id="paidAmount" 
+                type="number" 
+                value={formData.paidAmount}
+                onChange={(e) => setFormData({ ...formData, paidAmount: Number(e.target.value) })}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="repairedParts">Parts Replaced (List)</Label>
